@@ -27,9 +27,9 @@ jobs:
       - run:
           name: Build and Push Docker Image
           command: |
-            IMAGE_NAME="us-central1-docker.pkg.dev/$GOOGLE_PROJECT_ID/my-repo/mlops-app:latest"
-            docker build -t $IMAGE_NAME .
-            docker push $IMAGE_NAME
+            docker build -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT_ID/my-repo/mlops-app:latest .
+            docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT_ID/my-repo/mlops-app:latest
+
       - run:
           name: Configure GKE
           command: |
