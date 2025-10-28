@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: mlops-app
-        image: us-central1-docker.pkg.dev/apt-momentum-355109/my-repo/mlops-app@sha256:61d3ec3e594a1003bddc26f48893b95e54884b1ccb583c2fd74c2a50cd20c8ec
+        image: us-central1-docker.pkg.dev/apt-momentum-355109/my-repo/mlops-app:latest
+
         ports:
         - containerPort: 5000
 

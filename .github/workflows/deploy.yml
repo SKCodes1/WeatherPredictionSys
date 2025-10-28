@@ -11,12 +11,12 @@ env:
   GKE_REGION: "us-central1"
   DEPLOYMENT_NAME: "mlops-app"
   REPOSITORY: "us-central1-docker.pkg.dev/apt-momentum-355109/my-repo"
+  # Important: IMAGE must include the image name after the repo
   IMAGE: "us-central1-docker.pkg.dev/apt-momentum-355109/my-repo/mlops-app"
-
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest   # Only use this, do not use container:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -31,6 +31,12 @@ jobs:
         run: |
           gcloud config set project $PROJECT_ID
           gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      # Install gke-gcloud-auth-plugin required for GKE authentication
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          sudo apt-get update
+          sudo apt-get install google-cloud-sdk-gke-gcloud-auth-plugin -y
 
       - name: Build and Push Image
         run: |
