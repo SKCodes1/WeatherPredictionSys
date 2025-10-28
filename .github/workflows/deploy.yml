@@ -11,7 +11,8 @@ env:
   GKE_REGION: "us-central1"
   DEPLOYMENT_NAME: "mlops-app"
   REPOSITORY: "us-central1-docker.pkg.dev/apt-momentum-355109/my-repo"
-  IMAGE: "us-central1-docker.pkg.dev/apt-momentum-355109/my-repo"
+  IMAGE: "us-central1-docker.pkg.dev/apt-momentum-355109/my-repo/mlops-app"
+
 
 jobs:
   build-and-deploy:
