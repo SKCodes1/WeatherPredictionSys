@@ -31,12 +31,20 @@ jobs:
           gcloud config set project $PROJECT_ID
           gcloud auth configure-docker us-central1-docker.pkg.dev
 
-      # Install gke-gcloud-auth-plugin from binary (works with Ubuntu 24.04/noble)
-      - name: Install gke-gcloud-auth-plugin from binary
+      # Install gke-gcloud-auth-plugin using architecture detection
+      - name: Install gke-gcloud-auth-plugin
         run: |
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            URL="https://storage.googleapis.com/artifacts.k8s.io/binaries/gke-gcloud-auth-plugin/release/v0.7.0/linux-amd64/gke-gcloud-auth-plugin"
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            URL="https://storage.googleapis.com/artifacts.k8s.io/binaries/gke-gcloud-auth-plugin/release/v0.7.0/linux-arm64/gke-gcloud-auth-plugin"
+          else
+            echo "Unsupported architecture: $ARCH"
+            exit 1
+          fi
           mkdir -p ~/.kube/plugins/
-          curl -Lo ~/.kube/plugins/gke-gcloud-auth-plugin \
-            https://storage.googleapis.com/artifacts.k8s.io/binaries/gke-gcloud-auth-plugin/release/v0.7.0/linux-amd64/gke-gcloud-auth-plugin
+          curl -Lo ~/.kube/plugins/gke-gcloud-auth-plugin "$URL"
           chmod +x ~/.kube/plugins/gke-gcloud-auth-plugin
           echo "$HOME/.kube/plugins" >> $GITHUB_PATH
 
