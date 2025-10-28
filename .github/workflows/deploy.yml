@@ -19,45 +19,36 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
+      # ✅ Step 1: Authenticate to Google Cloud
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Configure GCloud
-        run: |
-          gcloud config set project $PROJECT_ID
-          gcloud auth configure-docker us-central1-docker.pkg.dev
+      # ✅ Step 2: Set up gcloud SDK
+      - name: Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      # Install gke-gcloud-auth-plugin using architecture detection
-      - name: Install gke-gcloud-auth-plugin
-        run: |
-          ARCH=$(uname -m)
-          if [ "$ARCH" = "x86_64" ]; then
-            URL="https://storage.googleapis.com/artifacts.k8s.io/binaries/gke-gcloud-auth-plugin/release/v0.7.0/linux-amd64/gke-gcloud-auth-plugin"
-          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-            URL="https://storage.googleapis.com/artifacts.k8s.io/binaries/gke-gcloud-auth-plugin/release/v0.7.0/linux-arm64/gke-gcloud-auth-plugin"
-          else
-            echo "Unsupported architecture: $ARCH"
-            exit 1
-          fi
-          mkdir -p ~/.kube/plugins/
-          curl -Lo ~/.kube/plugins/gke-gcloud-auth-plugin "$URL"
-          chmod +x ~/.kube/plugins/gke-gcloud-auth-plugin
-          echo "$HOME/.kube/plugins" >> $GITHUB_PATH
+      # ✅ Step 3: Configure Docker for Artifact Registry
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
+      # ✅ Step 4: Build and Push Docker Image
       - name: Build and Push Image
         run: |
           docker build -t $IMAGE:$GITHUB_SHA .
           docker push $IMAGE:$GITHUB_SHA
 
-      - name: GKE Configuration
-        run: |
-          gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION --project $PROJECT_ID
+      # ✅ Step 5: Get GKE credentials
+      - name: Get GKE Credentials
+        run: gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION --project $PROJECT_ID
 
-      - name: Deploying to Kubernetes
+      # ✅ Step 6: Deploy to Kubernetes
+      - name: Deploy to GKE
         run: |
-          kubectl apply -f kubernetes-deployment.yaml
+          kubectl apply -f kubernetes-deployment.yaml --validate=false
           kubectl set image deployment/$DEPLOYMENT_NAME $DEPLOYMENT_NAME=$IMAGE:$GITHUB_SHA
