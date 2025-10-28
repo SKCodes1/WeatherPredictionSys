@@ -31,11 +31,14 @@ jobs:
           gcloud config set project $PROJECT_ID
           gcloud auth configure-docker us-central1-docker.pkg.dev
 
-      # Install gke-gcloud-auth-plugin via pip (works with Ubuntu noble/24.04)
-      - name: Install gke-gcloud-auth-plugin
+      # Install gke-gcloud-auth-plugin from binary (works with Ubuntu 24.04/noble)
+      - name: Install gke-gcloud-auth-plugin from binary
         run: |
-          pip install --upgrade pip
-          pip install gke-gcloud-auth-plugin
+          mkdir -p ~/.kube/plugins/
+          curl -Lo ~/.kube/plugins/gke-gcloud-auth-plugin \
+            https://storage.googleapis.com/artifacts.k8s.io/binaries/gke-gcloud-auth-plugin/release/v0.7.0/linux-amd64/gke-gcloud-auth-plugin
+          chmod +x ~/.kube/plugins/gke-gcloud-auth-plugin
+          echo "$HOME/.kube/plugins" >> $GITHUB_PATH
 
       - name: Build and Push Image
         run: |
