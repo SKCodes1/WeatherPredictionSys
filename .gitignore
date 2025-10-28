@@ -1,4 +1,4 @@
 venv/
 logs/
 gcp-key.json
-.github\workflows\deploy.yml
+.github/
